@@ -69,12 +69,17 @@ public class datadogLogsQueryPlugin implements StepPlugin{
     @RenderingOption(key = "displayType", value = "CODE")
     String query
 
+    @PluginProperty(title = "Number of Logs", description = "Number of logs to retrieve from Datadog", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
+    String numberOfLogs
+
     @Override
     void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
 
         ApiClient apiClient = datadogUtil.datadogAuth(datadogUtil.getPasswordFromKeyStorage(apiKeyAuth, context), datadogUtil.getPasswordFromKeyStorage(appKeyAuth, context))
 
-        datadogUtil.query(apiClient, query)
+        int numLogs = numberOfLogs.toInteger()
+
+        datadogUtil.query(apiClient, query, numLogs)
 
     }
 

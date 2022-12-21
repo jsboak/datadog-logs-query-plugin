@@ -16,7 +16,7 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext
 
 public class datadogUtil {
 
-    static void query(ApiClient datadogApiClient, String query){
+    static void query(ApiClient datadogApiClient, String query, int numLogs){
 
         LogsApi logsApi = new LogsApi(datadogApiClient)
 
@@ -29,7 +29,7 @@ public class datadogUtil {
                                         .from("1671234572954")
                                         .to("1671235572954"))
                         .sort(LogsSort.TIMESTAMP_ASCENDING)
-                        .page(new LogsListRequestPage().limit(10));
+                        .page(new LogsListRequestPage().limit(numLogs));
 
         try {
             LogsListResponse result = logsApi.listLogs(new LogsApi.ListLogsOptionalParameters().body(body));
