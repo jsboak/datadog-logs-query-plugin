@@ -14,9 +14,44 @@ import com.dtolabs.rundeck.core.execution.workflow.steps.StepException
 import com.dtolabs.rundeck.core.storage.ResourceMeta
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 
-public class datadogUtil {
+class datadogUtil {
 
-    static void query(ApiClient datadogApiClient, String query, int numLogs){
+    static final String[] TIME_UNITS = ["Seconds","Minutes","Hours","Days","Weeks"]
+
+    static long[] getQueryTimeRange(int timeRange, String timeUnit) {
+        long[] timestamps = new long[2]
+        int multiplier
+
+        switch (timeUnit) {
+            case "Seconds": multiplier = 1
+                break
+
+            case "Minutes": multiplier = 60
+                break
+
+            case "Hours": multiplier = 3600
+                break
+
+            case "Days": multiplier = 86400
+                break
+
+            case "Weeks": multiplier = 604800
+                break
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + timeUnit)
+        }
+
+        long endTime = (long) System.currentTimeMillis()
+        long startTime = endTime - (timeRange * multiplier * 1000l)
+
+        timestamps[0] = startTime
+        timestamps[1] = endTime
+
+        return timestamps
+    }
+
+    static void query(ApiClient datadogApiClient, String query, int numLogs, String startTime, String endTime){
 
         LogsApi logsApi = new LogsApi(datadogApiClient)
 
@@ -26,8 +61,8 @@ public class datadogUtil {
                                 new LogsQueryFilter()
                                         .query(query)
                                         .indexes(Collections.singletonList("main"))
-                                        .from("1671234572954")
-                                        .to("1671235572954"))
+                                        .from(startTime)
+                                        .to(endTime))
                         .sort(LogsSort.TIMESTAMP_ASCENDING)
                         .page(new LogsListRequestPage().limit(numLogs));
 

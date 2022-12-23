@@ -10,6 +10,7 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginDescription
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty
 import com.dtolabs.rundeck.plugins.descriptions.RenderingOption
 import com.dtolabs.rundeck.plugins.descriptions.RenderingOptions
+import com.dtolabs.rundeck.plugins.descriptions.SelectValues
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 import com.dtolabs.rundeck.plugins.step.StepPlugin
 import com.dtolabs.rundeck.core.execution.workflow.steps.FailureReason
@@ -72,14 +73,25 @@ public class datadogLogsQueryPlugin implements StepPlugin{
     @PluginProperty(title = "Number of Logs", description = "Number of logs to retrieve from Datadog", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
     String numberOfLogs
 
+    @PluginProperty(title = "Unit of Time", description = "Select the unit of time measurement for the time range of the query", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "Minutes")
+    @SelectValues(values = ["Seconds","Minutes","Hours","Days","Weeks"], freeSelect = false)
+    String timeUnit
+
+    @PluginProperty(title = "Time Range", description = "Specify the relative time range to apply to the query. E.g. past 5 minutes.", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
+    String timeRange
+
     @Override
     void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
+
+        long[] timestamps = datadogUtil.getQueryTimeRange(timeRange as int, timeUnit)
+        long startTime = timestamps[0]
+        long endTime = timestamps[1]
 
         ApiClient apiClient = datadogUtil.datadogAuth(datadogUtil.getPasswordFromKeyStorage(apiKeyAuth, context), datadogUtil.getPasswordFromKeyStorage(appKeyAuth, context))
 
         int numLogs = numberOfLogs.toInteger()
 
-        datadogUtil.query(apiClient, query, numLogs)
+        datadogUtil.query(apiClient, query, numLogs, startTime as String, endTime as String)
 
     }
 
