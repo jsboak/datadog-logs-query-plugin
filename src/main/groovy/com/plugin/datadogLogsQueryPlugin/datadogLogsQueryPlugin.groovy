@@ -22,7 +22,7 @@ import groovy.transform.CompileDynamic
 @CompileDynamic
 public class datadogLogsQueryPlugin implements StepPlugin{
     public static final String PROVIDER_TITLE = "Datadog / Query Logs"
-    public static final String PROVIDER_DESCRIPTION = "Query Datadog Logs..."
+    public static final String PROVIDER_DESCRIPTION = "Query logs from Datadog by providing a logs query.\nFor details on Datadog's log search syntax, see [here](https://docs.datadoghq.com/logs/explorer/search_syntax/)."
 
     @PluginProperty(title = "App Key Auth", description = "Datadog App Key Auth", required = false, scope = PropertyScope.Instance)
     @RenderingOptions([
@@ -66,21 +66,21 @@ public class datadogLogsQueryPlugin implements StepPlugin{
     ])
     String apiKeyAuth
 
-    @PluginProperty(title = "Query String", description = "Logs Query", required = true, scope = PropertyScope.Instance)
+    @PluginProperty(title = "Logs Query", description = "Insert the query to be used to surface logs from Datadog.\nUse Datadog's [Log Search Syntax](https://docs.datadoghq.com/logs/explorer/search_syntax/) to query logs.", required = true, scope = PropertyScope.Instance)
     @RenderingOption(key = "displayType", value = "CODE")
     String query
 
-    @PluginProperty(title = "Number of Logs", description = "Number of logs to retrieve from Datadog", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
+    @PluginProperty(title = "Number of Logs", description = "Limit the number of logs to retrieve from Datadog", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
     String numberOfLogs
 
     @PluginProperty(title = "Unit of Time", description = "Select the unit of time measurement for the time range of the query", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "Minutes")
     @SelectValues(values = ["Seconds","Minutes","Hours","Days","Weeks"], freeSelect = false)
     String timeUnit
 
-    @PluginProperty(title = "Time Range", description = "Specify the relative time range to apply to the query. E.g. past 5 minutes.", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
+    @PluginProperty(title = "Time Range", description = "Specify the relative time range to apply to the query. For example: past 5 minutes.", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
     String timeRange
 
-    @PluginProperty(title = "Index", description = "For customers with multiple indexes, the indexes to search.  Default of * means all indexes.", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "*")
+    @PluginProperty(title = "Index", description = "For customers with multiple indexes, optionally provide a comma-separate list of indexes to search.\nDefault of * means all indexes. See [here](https://docs.datadoghq.com/logs/log_configuration/indexes/) for more details on indexes.", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "*")
     @RenderingOptions([
             @RenderingOption(
                     key = StringRenderingConstants.GROUP_NAME,
