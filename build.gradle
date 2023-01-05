@@ -80,6 +80,6 @@ jar {
     dependsOn(copyToLib)
 }
 
-wrapper {
-    gradleVersion = '7.1.1'
-}
+//wrapper {
+//    gradleVersion = '7.1.1'
+//}

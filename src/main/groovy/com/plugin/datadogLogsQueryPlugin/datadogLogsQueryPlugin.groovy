@@ -80,6 +80,19 @@ public class datadogLogsQueryPlugin implements StepPlugin{
     @PluginProperty(title = "Time Range", description = "Specify the relative time range to apply to the query. E.g. past 5 minutes.", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
     String timeRange
 
+    @PluginProperty(title = "Index", description = "For customers with multiple indexes, the indexes to search.  Default of * means all indexes.", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "*")
+    @RenderingOptions([
+            @RenderingOption(
+                    key = StringRenderingConstants.GROUP_NAME,
+                    value = "Advanced"
+            ),
+            @RenderingOption(
+                    key = StringRenderingConstants.GROUPING,
+                    value = "secondary"
+            )
+    ])
+    String indexes
+
     @Override
     void executeStep(PluginStepContext context, Map<String, Object> configuration) throws StepException {
 
@@ -91,7 +104,7 @@ public class datadogLogsQueryPlugin implements StepPlugin{
 
         int numLogs = numberOfLogs.toInteger()
 
-        datadogUtil.query(apiClient, query, numLogs, startTime as String, endTime as String)
+        datadogUtil.query(apiClient, query, numLogs, startTime as String, endTime as String, indexes)
 
     }
 

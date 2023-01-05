@@ -51,7 +51,9 @@ class datadogUtil {
         return timestamps
     }
 
-    static void query(ApiClient datadogApiClient, String query, int numLogs, String startTime, String endTime){
+    static void query(ApiClient datadogApiClient, String query, int numLogs, String startTime, String endTime, indexes){
+
+        List<String> indexList = indexes.replace(" ","").split(",")
 
         LogsApi logsApi = new LogsApi(datadogApiClient)
 
@@ -60,7 +62,7 @@ class datadogUtil {
                         .filter(
                                 new LogsQueryFilter()
                                         .query(query)
-                                        .indexes(Collections.singletonList("main"))
+                                        .indexes(indexList)
                                         .from(startTime)
                                         .to(endTime))
                         .sort(LogsSort.TIMESTAMP_ASCENDING)
@@ -71,7 +73,18 @@ class datadogUtil {
 
             for (Log ddLog : result.getData()) {
 
-                println(ddLog.getAttributes().message)
+                println("Timestamp: " + new Date(ddLog.getAttributes().timestamp.toEpochSecond().toLong()*1000))
+                println("Host: " + ddLog.getAttributes().host)
+                println("Service: " + ddLog.getAttributes().service)
+                println("Tags: " + ddLog.getAttributes().tags)
+
+                if(ddLog.getAttributes().message == null) {
+
+                    println("Content: " + ddLog.getAttributes().attributes + "\n")
+                }
+                else {
+                    println("Content: " + ddLog.getAttributes().message + "\n")
+                }
 
             }
 
