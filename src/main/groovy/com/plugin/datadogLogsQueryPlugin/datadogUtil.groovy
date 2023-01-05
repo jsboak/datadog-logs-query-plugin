@@ -16,8 +16,6 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext
 
 class datadogUtil {
 
-    static final String[] TIME_UNITS = ["Seconds","Minutes","Hours","Days","Weeks"]
-
     static long[] getQueryTimeRange(int timeRange, String timeUnit) {
         long[] timestamps = new long[2]
         int multiplier
@@ -51,7 +49,7 @@ class datadogUtil {
         return timestamps
     }
 
-    static void query(ApiClient datadogApiClient, String query, int numLogs, String startTime, String endTime, indexes){
+    static HashMap<String,Object> query(ApiClient datadogApiClient, String query, int numLogs, String startTime, String endTime, String indexes, PluginStepContext context){
 
         List<String> indexList = indexes.replace(" ","").split(",")
 
@@ -73,19 +71,26 @@ class datadogUtil {
 
             for (Log ddLog : result.getData()) {
 
-                println("Timestamp: " + new Date(ddLog.getAttributes().timestamp.toEpochSecond().toLong()*1000))
-                println("Host: " + ddLog.getAttributes().host)
-                println("Service: " + ddLog.getAttributes().service)
-                println("Tags: " + ddLog.getAttributes().tags)
+                Map<String, Object> propMap = [
+                    "Host":ddLog.getAttributes().host,
+                    "Service": ddLog.getAttributes().service,
+                    "Tags": ddLog.getAttributes().tags
+                ]
 
                 if(ddLog.getAttributes().message == null) {
 
-                    println("Content: " + ddLog.getAttributes().attributes + "\n")
+                    propMap.put("Content",ddLog.getAttributes().attributes.toString())
+
                 }
                 else {
-                    println("Content: " + ddLog.getAttributes().message + "\n")
+                    propMap.put("Content",ddLog.getAttributes().message)
                 }
 
+                String logDate = new Date(ddLog.getAttributes().timestamp.toEpochSecond().toLong()*1000).toString()
+                Map<String,Object> logMap = [:]
+                logMap.put(logDate,propMap)
+
+                return logMap
             }
 
         } catch (ApiException e) {

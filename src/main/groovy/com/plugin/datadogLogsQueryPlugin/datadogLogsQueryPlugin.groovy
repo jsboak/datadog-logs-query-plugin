@@ -1,5 +1,6 @@
 package com.plugin.datadogLogsQueryPlugin
 
+import com.plugin.datadogLogsQueryPlugin.datadogUtil
 import com.datadog.api.client.ApiClient
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException
 import com.dtolabs.rundeck.core.plugins.Plugin
@@ -13,8 +14,7 @@ import com.dtolabs.rundeck.plugins.descriptions.RenderingOptions
 import com.dtolabs.rundeck.plugins.descriptions.SelectValues
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 import com.dtolabs.rundeck.plugins.step.StepPlugin
-import com.dtolabs.rundeck.core.execution.workflow.steps.FailureReason
-import com.plugin.datadogLogsQueryPlugin.datadogUtil
+import groovy.json.JsonOutput
 import groovy.transform.CompileDynamic
 
 @Plugin(name = "datadog-query-logs", service = ServiceNameConstants.WorkflowStep)
@@ -104,7 +104,11 @@ public class datadogLogsQueryPlugin implements StepPlugin{
 
         int numLogs = numberOfLogs.toInteger()
 
-        datadogUtil.query(apiClient, query, numLogs, startTime as String, endTime as String, indexes)
+        HashMap<String, Object> output = datadogUtil.query(apiClient, query, numLogs, startTime as String, endTime as String, indexes, context)
+        Map<String, String> meta = new HashMap<>();
+        meta.put("content-data-type", "application/json");
+
+        context.getExecutionContext().executionLogger.log(2, JsonOutput.toJson(output), meta)
 
     }
 
