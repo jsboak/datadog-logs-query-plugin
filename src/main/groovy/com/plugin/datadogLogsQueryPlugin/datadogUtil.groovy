@@ -49,9 +49,6 @@ class datadogUtil {
         timestamps[0] = startTime
         timestamps[1] = endTime
 
-        println("Start Time: " + startTime)
-        println("End Time: " + endTime)
-
         return timestamps
     }
 
@@ -87,7 +84,7 @@ class datadogUtil {
                     message = ddLog.getAttributes().message
                 }
 
-                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MMM dd hh:mm:ss.SSS z").withZone(ZoneId.of(timeZone, ZoneId.SHORT_IDS));
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MMM dd hh:mm:ss.SSS a z").withZone(ZoneId.of(timeZone, ZoneId.SHORT_IDS));
 
                 String logDate = ddLog.getAttributes().timestamp.format(timeFormatter)
 

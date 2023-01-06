@@ -18,6 +18,8 @@ import com.dtolabs.rundeck.plugins.step.StepPlugin
 import groovy.json.JsonOutput
 import groovy.transform.CompileDynamic
 
+import java.time.ZoneId
+
 @Plugin(name = "datadog-query-logs", service = ServiceNameConstants.WorkflowStep)
 @PluginDescription(title = PROVIDER_TITLE, description = PROVIDER_DESCRIPTION)
 @CompileDynamic
@@ -71,8 +73,9 @@ public class datadogLogsQueryPlugin implements StepPlugin{
     @RenderingOption(key = "displayType", value = "CODE")
     String query
 
-    @PluginProperty(title = "Convert to Time Zone", description = "The desired time zone to convert to for the output log entries", required = true, scope = PropertyScope.InstanceOnly)
-    @SelectValues(values = ["ACT","AET", "AGT", "ART", "AST", "BET", "BST", "CAT", "CNT", "CST", "CTT", "EAT", "ECT", "EET", "EST", "GMT", "HST", "IET", "IST", "JST", "MET", "MIT", "MST", "NET", "NST", "PLT", "PNT", "PRT", "PST", "SST", "UTC", "VST"], freeSelect = false)
+    @PluginProperty(title = "Convert to Time Zone", description = "The desired time zone to convert to for the output log entries.", required = true, defaultValue = "America/New_York", scope = PropertyScope.InstanceOnly)
+    @SelectValues(values = ['Africa/Cairo', 'Africa/Lagos', 'America/Anchorage', 'America/Los_Angeles', 'America/Manaus', 'America/Mexico_City', 'America/New_York', 'America/Phoniex', 'America/Santiago', 'America/Sao_Paulo',
+            'America/St_Johns', 'Asia/Baku', 'Asia/Karachi', 'Asia/Shanghai', 'Asia/Tehran', 'Asia/Tokyo', 'Australia/Brisbane', 'Australia/Sydney', 'Europe/London', 'Europe/Moscow', 'Pacific/Auckland'], freeSelect = false)
     String timeZone
 
     @PluginProperty(title = "Number of Logs", description = "Limit the number of logs to retrieve from Datadog", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
