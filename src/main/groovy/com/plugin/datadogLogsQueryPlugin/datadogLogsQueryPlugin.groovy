@@ -1,6 +1,5 @@
 package com.plugin.datadogLogsQueryPlugin
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend
 import com.plugin.datadogLogsQueryPlugin.datadogUtil
 import com.datadog.api.client.ApiClient
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException

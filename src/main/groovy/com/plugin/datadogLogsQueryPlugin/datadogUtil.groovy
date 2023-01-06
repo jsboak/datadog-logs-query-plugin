@@ -9,7 +9,6 @@ import com.datadog.api.client.v2.model.LogsListRequestPage
 import com.datadog.api.client.v2.model.LogsListResponse
 import com.datadog.api.client.v2.model.LogsQueryFilter
 import com.datadog.api.client.v2.model.LogsSort
-import com.dtolabs.rundeck.core.execution.workflow.steps.FailureReason
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException
 import com.dtolabs.rundeck.core.storage.ResourceMeta
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
@@ -66,7 +65,7 @@ class datadogUtil {
                                         .indexes(indexList)
                                         .from(startTime)
                                         .to(endTime))
-                        .sort(LogsSort.TIMESTAMP_ASCENDING)
+                        .sort(LogsSort.TIMESTAMP_DESCENDING)
                         .page(new LogsListRequestPage().limit(numLogs));
         Map<String,Object> logMap = [:]
 
@@ -95,11 +94,9 @@ class datadogUtil {
             }
 
         } catch (ApiException e) {
-            System.err.println("Exception when calling LogsApi#listLogs");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
+
+            throw new StepException("Exception when calling LogsApi-listLogs: " + e.getResponseBody(), DDFailureReason.AuthenticationError)
+
         }
 
         return logMap
@@ -114,12 +111,8 @@ class datadogUtil {
 
             return password;
         }catch(Exception ignored){
-            throw new StepException("can't find the password key storage path ${path}", Reason.ExampleReason);
+            throw new StepException("Secret could not be found in Key Storage at ${path}", DDFailureReason.KeyStorage);
         }
-    }
-
-    static enum Reason implements FailureReason{
-        ExampleReason
     }
 
     static ApiClient datadogAuth(String apiKeyAuth, String appKeyAuth) {
