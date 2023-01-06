@@ -1,5 +1,6 @@
 package com.plugin.datadogLogsQueryPlugin
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend
 import com.plugin.datadogLogsQueryPlugin.datadogUtil
 import com.datadog.api.client.ApiClient
 import com.dtolabs.rundeck.core.execution.workflow.steps.StepException
@@ -70,6 +71,10 @@ public class datadogLogsQueryPlugin implements StepPlugin{
     @RenderingOption(key = "displayType", value = "CODE")
     String query
 
+    @PluginProperty(title = "Convert to Time Zone", description = "The desired time zone to convert to for the output log entries", required = true, scope = PropertyScope.InstanceOnly)
+    @SelectValues(values = ["ACT","AET", "AGT", "ART", "AST", "BET", "BST", "CAT", "CNT", "CST", "CTT", "EAT", "ECT", "EET", "EST", "GMT", "HST", "IET", "IST", "JST", "MET", "MIT", "MST", "NET", "NST", "PLT", "PNT", "PRT", "PST", "SST", "UTC", "VST"], freeSelect = false)
+    String timeZone
+
     @PluginProperty(title = "Number of Logs", description = "Limit the number of logs to retrieve from Datadog", required = true, scope = PropertyScope.InstanceOnly, defaultValue = "5")
     String numberOfLogs
 
@@ -104,7 +109,7 @@ public class datadogLogsQueryPlugin implements StepPlugin{
 
         int numLogs = numberOfLogs.toInteger()
 
-        HashMap<String, Object> output = datadogUtil.query(apiClient, query, numLogs, startTime as String, endTime as String, indexes, context)
+        HashMap<String, Object> output = datadogUtil.query(apiClient, query, numLogs, startTime as String, endTime as String, indexes, timeZone)
         Map<String, String> meta = new HashMap<>();
         meta.put("content-data-type", "application/json");
 

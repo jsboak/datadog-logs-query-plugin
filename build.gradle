@@ -30,9 +30,10 @@ configurations{
 }
 
 dependencies {
-    implementation 'org.rundeck:rundeck-core:4.6.1-20220914'
+    implementation 'org.rundeck:rundeck-core:4.9.0-rc1-20221215'
+
     implementation 'org.jsoup:jsoup:1.15.3'
-    implementation 'org.codehaus.groovy:groovy-all:3.0.13'
+    implementation 'org.codehaus.groovy:groovy-all:3.0.14'
     implementation ('com.datadoghq:datadog-api-client:2.6.0') {
         exclude group: "com.fasterxml.jackson.core"
         exclude group: "com.fasterxml.jackson.datatype"
@@ -45,12 +46,17 @@ dependencies {
     }
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.codehaus.groovy:groovy-all:3.0.13'
-    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
+    testImplementation 'org.codehaus.groovy:groovy-all:3.0.14'
+    testImplementation  "org.spockframework:spock-core:2.0-groovy-3.0"
     testImplementation 'cglib:cglib-nodep:3.3.0'
     testImplementation 'org.objenesis:objenesis:3.2'
 
 }
+
+configurations.all(){
+    resolutionStrategy.force 'org.codehaus.groovy:groovy:3.0.14'
+}
+
 
 // task to copy plugin libs to output/lib dir
 task copyToLib(type: Copy) {

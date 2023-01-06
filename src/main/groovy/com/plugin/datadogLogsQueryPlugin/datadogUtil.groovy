@@ -14,6 +14,9 @@ import com.dtolabs.rundeck.core.execution.workflow.steps.StepException
 import com.dtolabs.rundeck.core.storage.ResourceMeta
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 class datadogUtil {
 
     static long[] getQueryTimeRange(int timeRange, String timeUnit) {
@@ -46,10 +49,13 @@ class datadogUtil {
         timestamps[0] = startTime
         timestamps[1] = endTime
 
+        println("Start Time: " + startTime)
+        println("End Time: " + endTime)
+
         return timestamps
     }
 
-    static HashMap<String,Object> query(ApiClient datadogApiClient, String query, int numLogs, String startTime, String endTime, String indexes, PluginStepContext context){
+    static HashMap<String,Object> query(ApiClient datadogApiClient, String query, int numLogs, String startTime, String endTime, String indexes, String timeZone){
 
         List<String> indexList = indexes.replace(" ","").split(",")
 
@@ -65,32 +71,30 @@ class datadogUtil {
                                         .to(endTime))
                         .sort(LogsSort.TIMESTAMP_ASCENDING)
                         .page(new LogsListRequestPage().limit(numLogs));
+        Map<String,Object> logMap = [:]
 
         try {
             LogsListResponse result = logsApi.listLogs(new LogsApi.ListLogsOptionalParameters().body(body));
 
             for (Log ddLog : result.getData()) {
 
-                Map<String, Object> propMap = [
-                    "Host":ddLog.getAttributes().host,
-                    "Service": ddLog.getAttributes().service,
-                    "Tags": ddLog.getAttributes().tags
-                ]
-
+                String message
                 if(ddLog.getAttributes().message == null) {
-
-                    propMap.put("Content",ddLog.getAttributes().attributes.toString())
+                    message = ddLog.getAttributes().attributes.toString()
 
                 }
                 else {
-                    propMap.put("Content",ddLog.getAttributes().message)
+                    message = ddLog.getAttributes().message
                 }
 
-                String logDate = new Date(ddLog.getAttributes().timestamp.toEpochSecond().toLong()*1000).toString()
-                Map<String,Object> logMap = [:]
-                logMap.put(logDate,propMap)
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MMM dd hh:mm:ss.SSS z").withZone(ZoneId.of(timeZone, ZoneId.SHORT_IDS));
 
-                return logMap
+                String logDate = ddLog.getAttributes().timestamp.format(timeFormatter)
+
+                logMap.put(logDate,"Host: " + ddLog.getAttributes().host + "\n"
+                        + "Service: " + ddLog.getAttributes().service + "\n"
+                        + "Tags: " + ddLog.getAttributes().tags + "\n"
+                        + "Message:\n" + message)
             }
 
         } catch (ApiException e) {
@@ -100,6 +104,8 @@ class datadogUtil {
             System.err.println("Response headers: " + e.getResponseHeaders());
             e.printStackTrace();
         }
+
+        return logMap
     }
 
     static String getPasswordFromKeyStorage(String path, PluginStepContext context) throws StepException {
